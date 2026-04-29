@@ -928,8 +928,30 @@ setInterval(() => {
   if (state.view === 'day' && isSameDay(state.date, new Date())) renderDay();
 }, 60000);
 
+async function seedIfEmpty() {
+  const today = fmtDate(new Date());
+  const existing = await api(`/blocks?date=${today}`);
+  if (existing.length) return;
+  const seeds = [
+    { title: 'Morning Routine', start: '07:00', end: '08:00', category: 'Personal', color: 0 },
+    { title: 'Deep Work',       start: '09:00', end: '11:30', category: 'Work',     color: 4 },
+    { title: 'Lunch',           start: '12:00', end: '13:00', category: 'Personal', color: 2 },
+    { title: 'Standup',         start: '13:00', end: '13:30', category: 'Work',     color: 3 },
+    { title: 'Review',          start: '14:00', end: '15:30', category: 'Work',     color: 5 },
+    { title: 'Gym',             start: '17:30', end: '19:00', category: 'Health',   color: 6 },
+    { title: 'Wind Down',       start: '21:00', end: '22:00', category: 'Personal', color: 1 }
+  ];
+  for (const s of seeds) {
+    await api('/blocks', { method: 'POST', body: {
+      title: s.title, start: s.start, end: s.end, category: s.category,
+      notes: '', color_bg: COLORS[s.color][0], color_text: COLORS[s.color][1],
+      recurrence: 'none', recurrence_end: null, date: today
+    }});
+  }
+}
+
 renderHeader();
-loadBlocks();
+seedIfEmpty().then(loadBlocks).catch(loadBlocks);
 </script>
 </body>
 </html>
