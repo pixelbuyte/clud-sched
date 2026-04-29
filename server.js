@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { v4: uuidv4 } = require('uuid');
 const Database = require('better-sqlite3');
 
 const app = express();
@@ -65,7 +64,7 @@ app.get('/api/blocks', (req, res) => {
 app.post('/api/blocks', (req, res) => {
   const { title, start, end, category, color_bg, color_text, notes, date, recurrence, recurrence_end } = req.body;
   if (!title || !start || !end || !date) return res.status(400).json({ error: 'missing fields' });
-  const id = uuidv4();
+  const id = crypto.randomUUID();
   db.prepare(`INSERT INTO blocks (id, date, title, start, end, category, color_bg, color_text, notes, done, recurrence, recurrence_end)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)`).run(
     id, date, title, start, end, category || '', color_bg || '#6c63ff', color_text || '#ffffff',
